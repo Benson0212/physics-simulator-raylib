@@ -240,7 +240,7 @@ int main()
             if (IsKeyPressed(KEY_A)) arCtrl();
             if (IsKeyPressed(KEY_T)) showTrail = !showTrail;
             BeginDrawing();
-            ClearBackground(BROWN);
+            ClearBackground(WHITE);
             loop(i, 0, balls.size())
             {
                 balls[i].move(balls, i);
