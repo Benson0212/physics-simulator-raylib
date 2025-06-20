@@ -23,7 +23,7 @@ bool gravButtom = true;
 bool airResistanceButtom = false;
 using namespace std;
 
-//-----------------------------------¥H¤U¬O©ßÅé¹B°Ê°Ï¶ô-----------------------------------
+//-----------------------------------ä»¥ä¸‹æ˜¯æ‹‹é«”é‹å‹•å€å¡Š-----------------------------------
 class ball
 {
 public:
@@ -39,7 +39,7 @@ public:
 		_pos.x += _v.first * dt;
 		_v.second += g * dt;
 		_pos.y += _v.second * dt;
-		loop(i, 0, balls.size())// ²yÅé¶¡¸I¼²³B²z (¦n¹³¤£¾A¦X¥Îloop()³B²z ¦ı§Ú¤]·Q¤£¨ìÔ£¦n¿ìªk
+		loop(i, 0, balls.size())// çƒé«”é–“ç¢°æ’è™•ç† (å¥½åƒä¸é©åˆç”¨loop()è™•ç† ä½†æˆ‘ä¹Ÿæƒ³ä¸åˆ°å•¥å¥½è¾¦æ³•
 		{
 			Vector2 c1 = { _pos.x, _pos.y };
 			if (i != num)
@@ -47,12 +47,12 @@ public:
 				Vector2 c2 = { balls[i].getPos() };
 				if (CheckCollisionCircles(c1, 25, c2, 25))
 				{
-					// ¼u©Ê¸I¼²ÅŞ¿è...¦n¹³¼gÄê¤F:(
+					// å½ˆæ€§ç¢°æ’é‚è¼¯...å¥½åƒå¯«çˆ›äº†:(
 					pff c2v = balls[i].getV();
 					float distance = sqrt(pow(_pos.x - c2.x, 2) + pow(_pos.y - c2.y,2));
 					float Cos = (c2.x - _pos.x) / distance;
 					float Sin = (c2.y - _pos.y) / distance;
-					pff V1_nt = { (_v.first * Cos + _v.second * Sin),(_v.first * Sin * -1 + _v.second * Cos) };//V¤Á½u Vªk½u
+					pff V1_nt = { (_v.first * Cos + _v.second * Sin),(_v.first * Sin * -1 + _v.second * Cos) };//Våˆ‡ç·š Væ³•ç·š
 					pff V2_nt = { (c2v.first * Cos + c2v.second * Sin),(c2v.first * Sin * -1 + c2v.second * Cos) };
 					swap(V1_nt.second, V2_nt.second);
 					_v.first = V1_nt.first * Cos - V1_nt.second * Sin;
@@ -127,7 +127,7 @@ void gravCtrl()
 		g = 500.0;
 	}
 }
-void arCtrl()// ³o¨ç¼Æ¦n¹³¨SÔ£¼vÅT
+void arCtrl()// é€™å‡½æ•¸å¥½åƒæ²’å•¥å½±éŸ¿
 {
 	if (airResistanceButtom)
 	{
@@ -140,13 +140,13 @@ void arCtrl()// ³o¨ç¼Æ¦n¹³¨SÔ£¼vÅT
 		aR = 0.5;
 	}
 }
-//--------------------------¥H¤W¬O©ßÅé¹B°Ê°Ï¶ô--------------------------
-//--------------------------¥H¤U¬O¤Ş¤O¼ÒÀÀ°Ï¶ô(unfinished)--------------------------
+//--------------------------ä»¥ä¸Šæ˜¯æ‹‹é«”é‹å‹•å€å¡Š--------------------------
+//--------------------------ä»¥ä¸‹æ˜¯å¼•åŠ›æ¨¡æ“¬å€å¡Š--------------------------
 /*
-*  ¦æ¬P½è¶q : 0.1 ~ 10
-*  ¦æ¬P¥b®| : 3 ~ 8
-*  ¦æ¬P¦ì¸m : random
-*  ¦æ¬Pªì³t : 100 ~ 150.0
+*  è¡Œæ˜Ÿè³ªé‡ : 0.1 ~ 10
+*  è¡Œæ˜ŸåŠå¾‘ : 3 ~ 8
+*  è¡Œæ˜Ÿä½ç½® : random
+*  è¡Œæ˜Ÿåˆé€Ÿ : 100 ~ 150.0
 */
 class star
 {
@@ -177,7 +177,7 @@ star sun(50000.0f, 25.0f, { (float)(ScreenWidth / 2), (float)(ScreenHeight / 2)}
 
 void addStar(vector<star> &stars)
 {
-	float radium = 5 * rand() / ( RAND_MAX + 1.0) + 3;//rand()¥Îªk -> https://blog.gtwang.org/programming/c-cpp-rand-random-number-generation-tutorial-examples/
+	float radium = 5 * rand() / ( RAND_MAX + 1.0) + 3;//rand()ç”¨æ³• -> https://blog.gtwang.org/programming/c-cpp-rand-random-number-generation-tutorial-examples/
 	float x = rand() % GetScreenWidth();
 	float y = rand() % GetScreenHeight();
 	int result = (std::rand() % 2 == 0) ? 1 : -1;
@@ -187,7 +187,7 @@ void addStar(vector<star> &stars)
 	float mass = 9.9 * rand() / (RAND_MAX + 1.0) + 0.1;
 	stars.pb(star(mass, radium, { x,y }, { Vx, Vy}));
 }
-//-----------------------¥H¤W¬O¤Ş¤O¼ÒÀÀ°Ï¶ô(unfinished)--------------------------------
+//-----------------------ä»¥ä¸Šæ˜¯å¼•åŠ›æ¨¡æ“¬å€å¡Š--------------------------------
 
 char selectScreen()
 {
@@ -220,9 +220,9 @@ int main()
 		vector <ball> balls;
 		double deg,rad;
 		float v0;
-		cout << "ªì³t : \n";
+		cout << "åˆé€Ÿ : \n";
 		cin >> v0;
-		cout << "¨¤«× : \n";
+		cout << "è§’åº¦ : \n";
 		cin >> deg;
 		rad = deg * DEG2RAD;//rad = deg * M_PI / 180;
 		balls.pb(ball(initpos, v0, rad));
