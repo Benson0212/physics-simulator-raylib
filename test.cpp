@@ -91,6 +91,7 @@ public:
 		if (airResistanceButtom) DrawText("AirResistance : ON", 50, 80, 24, GREEN);
 		else DrawText("AirResistance : OFF", 50, 80, 24, RED);
 		DrawCircleV(_pos, 25, BLACK);
+		DrawText("PRESS [B] to add ball", 50, 110, 24, BLUE);
 	}
 	void modifyV(const pff &newV)
 	{
