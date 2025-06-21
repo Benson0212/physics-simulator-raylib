@@ -1,0 +1,27 @@
+# Build directories
+[Bb]uild*/
+[Bb]in/
+[Oo]bj/
+x64/
+x86/
+*.log
+
+# Compiled binary files
+*.exe
+*.dll
+*.lib
+*.pdb
+*.ipch
+*.sdf
+*.tlog
+
+# User-specific files
+*.user
+*.suo
+*.VC.db
+*.VC.opendb
+.vs/
+
+# OS files
+.DS_Store
+Thumbs.db
