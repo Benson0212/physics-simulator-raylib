@@ -24,4 +24,8 @@ x86/
 
 # OS files
 .DS_Store
+<<<<<<< HEAD
 Thumbs.db
+=======
+Thumbs.db
+>>>>>>> 68405667262c84f2d9c253cc7c5b4d94c7ffa3b6
