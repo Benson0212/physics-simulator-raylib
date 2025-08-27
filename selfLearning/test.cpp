@@ -22,7 +22,7 @@ float aR = 1; // air resistance
 bool gravButtom = true;
 bool airResistanceButtom = false;
 bool showTrail = true;
-bool energyLoss = true;
+bool energyLoss = true;// 彈碰開關
 
 using namespace std;
 
@@ -30,7 +30,7 @@ using namespace std;
 class ball
 {
 public:
-    ball(Vector2 initpos, float v0, double radian) : _initpos(initpos), _v0(v0), _rad(radian) {}
+    ball(Vector2 initpos, float v0, double radian) : _initpos(initpos), _v0(v0), _rad(radian), _mass(1.0f) {}
     void init()
     {
         _pos = _initpos;
@@ -103,7 +103,6 @@ public:
             }
         }
         DrawCircleV(_pos, 25, BLACK);
-        DrawText("FuncTest", (GetScreenWidth() - MeasureText("FuncTest", 72)) / 2, (GetScreenHeight() - 72) / 2, 72, BLACK);
         DrawText(gravButtom ? "Gravity : ON" : "Gravity : OFF", 50, 50, 24, gravButtom ? GREEN : RED);
         DrawText(airResistanceButtom ? "AirResistance : ON" : "AirResistance : OFF", 50, 80, 24, airResistanceButtom ? GREEN : RED);
         DrawText("PRESS [B] to add ball", 50, 110, 24, BLUE);
@@ -114,8 +113,10 @@ public:
     void modifyV(const pff& newV) { _v = newV; }
     pff getV() const { return _v; }
     Vector2 getPos() const { return _pos; }
+    float getMass() const { return _mass; }
 private:
     float _v0, _rad;
+    float _mass;
     pff _v;
     Vector2 _pos, _initpos;
     std::vector<Vector2> trail;
@@ -129,29 +130,12 @@ void addBall(vector<ball>& balls, const float& v0, const float& rad)
     balls.back().init();
 }
 
-void gravCtrl()
-{
-    gravButtom = !gravButtom;
-    g = gravButtom ? 500.0f : 0.0f;
-}
+void gravCtrl() { gravButtom = !gravButtom; g = gravButtom ? 500.0f : 0.0f; }
+void arCtrl() { airResistanceButtom = !airResistanceButtom; aR = airResistanceButtom ? 0.5f : 1.0f; }
+void energyCtrl() { energyLoss = !energyLoss; }
 
-void arCtrl()
-{
-    airResistanceButtom = !airResistanceButtom;
-    aR = airResistanceButtom ? 0.5f : 1.0f;
-}
-
-void energyCtrl()
-{
-    energyLoss = !energyLoss;
-}
 ////--------------------------以上是拋體運動區塊--------------------------
 ////--------------------------以下是引力模擬區塊--------------------------
-
-//  行星質量 : 0.1 ~ 10
-//  行星半徑 : 3 ~ 8
-//  行星位置 : random
-//  行星初速 : 100 ~ 150.0
 
 class star
 {
@@ -160,6 +144,7 @@ public:
     float GetMass() const { return _mass; }
     float GetR() const { return _radius; }
     Vector2 GetPos() const { return _pos; }
+    Vector2 GetV() const { return _v; }
     void move(const star& sun) {
         float dt = GetFrameTime();
         float r = Vector2Distance(sun.GetPos(), _pos);
@@ -206,6 +191,30 @@ void addStar(vector<star>& stars)
 }
 
 ////-----------------------以上是引力模擬區塊--------------------------------
+
+// ========== 新增功能：物理量計算模組 ==========
+Vector2 ComputeMomentumBall(const ball& b) {
+    return { b.getV().first * b.getMass(), b.getV().second * b.getMass() };
+}
+Vector2 ComputeMomentumStar(const star& s) {
+    return { s.GetV().x * s.GetMass(), s.GetV().y * s.GetMass() };
+}
+Vector2 ComputeTotalMomentumBalls(const vector<ball>& balls) {
+    Vector2 total{ 0,0 };
+    for (auto& b : balls) {
+        total = Vector2Add(total, ComputeMomentumBall(b));
+    }
+    return total;
+}
+Vector2 ComputeTotalMomentumStars(const vector<star>& stars) {
+    Vector2 total{ 0,0 };
+    for (auto& s : stars) {
+        total = Vector2Add(total, ComputeMomentumStar(s));
+    }
+    return total;
+}
+
+// =============================================
 
 char selectScreen()
 {
@@ -257,6 +266,9 @@ int main()
                 balls[i].move(balls, i);
                 balls[i].draw();
             }
+            // 顯示總動量
+            Vector2 totalP = ComputeTotalMomentumBalls(balls);
+            DrawText(TextFormat("Total Momentum: (%.2f, %.2f)", totalP.x, totalP.y), 50, 210, 24, PURPLE);
             EndDrawing();
         }
     }
@@ -279,6 +291,11 @@ int main()
                 s.draw();
             }
             sun.draw();
+
+            // 顯示總動量
+            Vector2 totalP = ComputeTotalMomentumStars(stars);
+            DrawText(TextFormat("Total Momentum: (%.2f, %.2f)", totalP.x, totalP.y), 50, 120, 24, PURPLE);
+
             EndDrawing();
         }
     }
