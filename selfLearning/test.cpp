@@ -225,7 +225,8 @@ char selectScreen()
 {
     char result = 'X';
     InitWindow(ScreenWidth, ScreenHeight, "selectScreen");
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose())
+    {
         BeginDrawing();
         ClearBackground(BLACK);
         DrawText("Projectile motion : PRESS [P]", 700, 700, 72, WHITE);
