@@ -71,7 +71,6 @@ public:
                 }
             }
         }
-        // �ɸI�
         if(wallEnabled)
         {
             if (_pos.y > GetScreenHeight() - 100)
@@ -143,10 +142,10 @@ void wall() { wallEnabled = !wallEnabled; }
 ////--------------------------�H�W�O�B�ʰ϶�--------------------------
 ////--------------------------�H�U�O�ޤO�϶�--------------------------
 
-//  �P�q : 0.1 ~ 10
-//  �P�b�| : 3 ~ 8
-//  �P�m : random
-//  �P�t : 100 ~ 150.0
+// Planet Mass: 0.1 ~ 10
+// Planet Radius: 3 ~ 8
+// Planet Position: Random
+// Planet Initial Velocity: 100 ~ 150.0
 
 class star
 {
