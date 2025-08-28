@@ -256,8 +256,8 @@ int main()
         vector<ball> balls;
         double deg, rad;
         float v0;
-        cout << "速度 : \n"; cin >> v0;
-        cout << "角度 : \n"; cin >> deg;
+        cout << "speed : \n"; cin >> v0;
+        cout << "degree : \n"; cin >> deg;
         rad = deg * DEG2RAD;
         balls.pb(ball(initpos, v0, rad));
         balls[0].init();
