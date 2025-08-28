@@ -22,13 +22,15 @@ float aR = 1; // air resistance
 bool gravButtom = true;
 bool airResistanceButtom = false;
 bool showTrail = true;
+bool energyLoss = true;// 彈碰開關
+
 using namespace std;
 
 ////-----------------------------------以下是拋體運動區塊-----------------------------------
 class ball
 {
 public:
-    ball(Vector2 initpos, float v0, double radian) : _initpos(initpos), _v0(v0), _rad(radian) {}
+    ball(Vector2 initpos, float v0, double radian) : _initpos(initpos), _v0(v0), _rad(radian), _mass(1.0f) {}
     void init()
     {
         _pos = _initpos;
@@ -46,7 +48,7 @@ public:
         trail.push_back(_pos);
         if (trail.size() > 100) trail.erase(trail.begin());
 
-        loop(i, 0, balls.size())// 球體間碰撞處理 (好像不適合用loop()處理 但我也想不到啥好辦法
+        loop(i, 0, balls.size())// 球體間碰撞處理
         {
             Vector2 c1 = { _pos.x, _pos.y };
             if (i != num)
@@ -54,7 +56,7 @@ public:
                 Vector2 c2 = { balls[i].getPos() };
                 if (CheckCollisionCircles(c1, 25, c2, 25))
                 {
-                    // 彈性碰撞邏輯...好像寫爛了:(
+                    // 彈性碰撞
                     pff c2v = balls[i].getV();
                     float distance = sqrt(pow(_pos.x - c2.x, 2) + pow(_pos.y - c2.y, 2));
                     float Cos = (c2.x - _pos.x) / distance;
@@ -68,49 +70,53 @@ public:
                 }
             }
         }
+        // 邊界碰撞
         if (_pos.y > GetScreenHeight() - 100)
         {
             _pos.y = GetScreenHeight() - 100;
-            _v.second *= -0.8f;
+            _v.second *= (energyLoss ? -0.8f : -1.0f);
         }
         else if (_pos.y < 0)
         {
             _pos.y = 0;
-            _v.second *= -0.8f;
+            _v.second *= (energyLoss ? -0.8f : -1.0f);
         }
         if (_pos.x > GetScreenWidth() - 25)
         {
             _pos.x = GetScreenWidth() - 25;
-            _v.first *= -0.8f;
+            _v.first *= (energyLoss ? -0.8f : -1.0f);
         }
         else if (_pos.x < 0)
         {
             _pos.x = 0;
-            _v.first *= -0.8f;
+            _v.first *= (energyLoss ? -0.8f : -1.0f);
         }
     }
     void draw()
     {
         if (showTrail)
         {
-            loop(i,0,trail.size())
+            loop(i, 0, trail.size())
             {
                 float alpha = (float)i / trail.size();
                 DrawCircleV(trail[i], 4, Fade(BLUE, alpha));
             }
         }
         DrawCircleV(_pos, 25, BLACK);
-        DrawText("FuncTest", (GetScreenWidth() - MeasureText("FuncTest", 72)) / 2, (GetScreenHeight() - 72) / 2, 72, BLACK);
         DrawText(gravButtom ? "Gravity : ON" : "Gravity : OFF", 50, 50, 24, gravButtom ? GREEN : RED);
         DrawText(airResistanceButtom ? "AirResistance : ON" : "AirResistance : OFF", 50, 80, 24, airResistanceButtom ? GREEN : RED);
         DrawText("PRESS [B] to add ball", 50, 110, 24, BLUE);
         DrawText("PRESS [T] to toggle trail", 50, 140, 24, BLUE);
+        DrawText(energyLoss ? "Collision: Energy Loss" : "Collision: Perfect Elastic",
+            50, 170, 24, energyLoss ? RED : GREEN);
     }
     void modifyV(const pff& newV) { _v = newV; }
     pff getV() const { return _v; }
     Vector2 getPos() const { return _pos; }
+    float getMass() const { return _mass; }
 private:
     float _v0, _rad;
+    float _mass;
     pff _v;
     Vector2 _pos, _initpos;
     std::vector<Vector2> trail;
@@ -124,17 +130,10 @@ void addBall(vector<ball>& balls, const float& v0, const float& rad)
     balls.back().init();
 }
 
-void gravCtrl()
-{
-    gravButtom = !gravButtom;
-    g = gravButtom ? 500.0f : 0.0f;
-}
+void gravCtrl() { gravButtom = !gravButtom; g = gravButtom ? 500.0f : 0.0f; }
+void arCtrl() { airResistanceButtom = !airResistanceButtom; aR = airResistanceButtom ? 0.5f : 1.0f; }
+void energyCtrl() { energyLoss = !energyLoss; }
 
-void arCtrl()
-{
-    airResistanceButtom = !airResistanceButtom;
-    aR = airResistanceButtom ? 0.5f : 1.0f;
-}
 ////--------------------------以上是拋體運動區塊--------------------------
 ////--------------------------以下是引力模擬區塊--------------------------
 
@@ -150,6 +149,7 @@ public:
     float GetMass() const { return _mass; }
     float GetR() const { return _radius; }
     Vector2 GetPos() const { return _pos; }
+    Vector2 GetV() const { return _v; }
     void move(const star& sun) {
         float dt = GetFrameTime();
         float r = Vector2Distance(sun.GetPos(), _pos);
@@ -186,7 +186,7 @@ star sun(50000.0f, 25.0f, { (float)(ScreenWidth / 2), (float)(ScreenHeight / 2) 
 
 void addStar(vector<star>& stars)
 {
-    float radium = 5 * rand() / (RAND_MAX + 1.0f) + 3;//rand()用法 -> https://blog.gtwang.org/programming/c-cpp-rand-random-number-generation-tutorial-examples/
+    float radium = 5 * rand() / (RAND_MAX + 1.0f) + 3;
     float x = rand() % GetScreenWidth();
     float y = rand() % GetScreenHeight();
     float Vx = (50 * rand() / (RAND_MAX + 1.0f) + 100.0f) * (rand() % 2 ? 1 : -1);
@@ -197,11 +197,36 @@ void addStar(vector<star>& stars)
 
 ////-----------------------以上是引力模擬區塊--------------------------------
 
+// ========== 新增功能：物理量計算模組 ==========
+Vector2 ComputeMomentumBall(const ball& b) {
+    return { b.getV().first * b.getMass(), b.getV().second * b.getMass() };
+}
+Vector2 ComputeMomentumStar(const star& s) {
+    return { s.GetV().x * s.GetMass(), s.GetV().y * s.GetMass() };
+}
+Vector2 ComputeTotalMomentumBalls(const vector<ball>& balls) {
+    Vector2 total{ 0,0 };
+    for (auto& b : balls) {
+        total = Vector2Add(total, ComputeMomentumBall(b));
+    }
+    return total;
+}
+Vector2 ComputeTotalMomentumStars(const vector<star>& stars) {
+    Vector2 total{ 0,0 };
+    for (auto& s : stars) {
+        total = Vector2Add(total, ComputeMomentumStar(s));
+    }
+    return total;
+}
+
+// =============================================
+
 char selectScreen()
 {
     char result = 'X';
     InitWindow(ScreenWidth, ScreenHeight, "selectScreen");
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose())
+    {
         BeginDrawing();
         ClearBackground(BLACK);
         DrawText("Projectile motion : PRESS [P]", 700, 700, 72, WHITE);
@@ -221,7 +246,7 @@ int main()
     const char c = selectScreen();
     if (c == 'P')
     {
-        Vector2 initpos = { 0, GetScreenHeight() - 50 };// initial position
+        Vector2 initpos = { 0, GetScreenHeight() - 50 };
         vector<ball> balls;
         double deg, rad;
         float v0;
@@ -230,7 +255,7 @@ int main()
         rad = deg * DEG2RAD;
         balls.pb(ball(initpos, v0, rad));
         balls[0].init();
-        InitWindow(ScreenWidth, ScreenHeight, "Projectile motion");//width,height,title
+        InitWindow(ScreenWidth, ScreenHeight, "Projectile motion");
         ScreenWidth = GetMonitorWidth(0);
         ScreenHeight = GetMonitorHeight(0);
         while (!WindowShouldClose())
@@ -239,6 +264,7 @@ int main()
             if (IsKeyPressed(KEY_G)) gravCtrl();
             if (IsKeyPressed(KEY_A)) arCtrl();
             if (IsKeyPressed(KEY_T)) showTrail = !showTrail;
+            if (IsKeyPressed(KEY_C)) energyCtrl();
             BeginDrawing();
             ClearBackground(WHITE);
             loop(i, 0, balls.size())
@@ -246,6 +272,9 @@ int main()
                 balls[i].move(balls, i);
                 balls[i].draw();
             }
+            // 顯示總動量
+            Vector2 totalP = ComputeTotalMomentumBalls(balls);
+            DrawText(TextFormat("Total Momentum: (%.2f, %.2f)", totalP.x, totalP.y), 50, 210, 24, PURPLE);
             EndDrawing();
         }
     }
@@ -268,6 +297,11 @@ int main()
                 s.draw();
             }
             sun.draw();
+
+            // 顯示總動量
+            Vector2 totalP = ComputeTotalMomentumStars(stars);
+            DrawText(TextFormat("Total Momentum: (%.2f, %.2f)", totalP.x, totalP.y), 50, 120, 24, PURPLE);
+
             EndDrawing();
         }
     }
